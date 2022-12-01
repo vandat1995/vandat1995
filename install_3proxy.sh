@@ -138,6 +138,41 @@ $(awk -F "/" '{print "auth strong iponly\n" \
 "flush\n"}' ${WORKDATA})
 EOF
 }
+fix_initd() {
+    cat <<EOF
+#!/bin/sh
+
+case "$1" in
+   start)
+       echo Starting 3Proxy
+
+       /usr/local/etc/3proxy/bin/3proxy /usr/local/etc/3proxy/3proxy.cfg
+
+       RETVAL=$?
+       echo
+       [ $RETVAL ]
+       ;;
+
+   stop)
+       echo Stopping 3Proxy
+       pkill -f '3proxy'
+       RETVAL=$?
+       echo
+       [ $RETVAL ]
+       ;;
+
+   restart|reload)
+       echo Reloading 3Proxy
+       pkill -f '3proxy'
+       /usr/local/etc/3proxy/bin/3proxy /usr/local/etc/3proxy/3proxy.cfg
+       ;;
+   *)
+       echo Usage: $0 "{start|stop|restart}"
+       exit 1
+esac
+exit 0
+EOF
+}
 
 gen_proxy_file_for_user() {
     cat >proxy.txt <<EOF
@@ -187,7 +222,7 @@ IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 
 echo "Internal ip = ${IP4}. Exteranl sub for ip6 = ${IP6}"
 
-echo "How many proxy do you want to create? Example 500"
+echo "How many proxy do you want to create? Example 500: "
 read COUNT
 
 
@@ -200,7 +235,6 @@ gen_ifconfig >$WORKDIR/boot_ifconfig.sh
 chmod +x ${WORKDIR}/boot_*.sh /etc/rc.local
 
 gen_3proxy >/usr/local/etc/3proxy/3proxy.cfg
-
 echo "* 127.0.0.1 * *" > /usr/local/etc/3proxy/whitelist.txt
 
 cat >>/etc/rc.local <<EOF
@@ -211,6 +245,8 @@ service 3proxy start
 EOF
 
 bash /etc/rc.local
+
+fix_initd > /etc/init.d/3proxy
 
 gen_proxy_file_for_user
 
