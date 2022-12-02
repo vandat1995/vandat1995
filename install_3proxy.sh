@@ -1,102 +1,13 @@
 #!/bin/sh
 
+echo "ulimit -n 188898" >> /root/.bashrc 
+sysctl -p
+
 random() {
 	tr </dev/urandom -dc A-Za-z0-9 | head -c5
 	echo
 }
 
-echo "ulimit -n 188898" >> /root/.bashrc 
-cat <<EOT >> /etc/sysct.conf
-net.ipv4.ip_forward = 0
-net.ipv4.conf.default.rp_filter = 1
-net.ipv4.conf.default.accept_source_route = 0
-kernel.sysrq = 0
-kernel.core_uses_pid = 1
-net.ipv4.tcp_syncookies = 1
-kernel.msgmnb = 65536
-kernel.msgmax = 65536
-kernel.shmmax = 68719476736
-kernel.shmall = 4294967296
-fs.file-max = 2097152
-vm.swappiness = 10
-vm.dirty_ratio = 60
-vm.dirty_background_ratio = 2
-net.ipv4.tcp_synack_retries = 2
-net.ipv4.ip_local_port_range = 2000 65535
-net.ipv4.tcp_rfc1337 = 1
-net.ipv4.tcp_fin_timeout = 15
-net.ipv4.tcp_keepalive_time = 300
-net.ipv4.tcp_keepalive_probes = 5
-net.ipv4.tcp_keepalive_intvl = 15
-net.core.rmem_default = 31457280
-net.core.rmem_max = 12582912
-net.core.wmem_default = 31457280
-net.core.wmem_max = 12582912
-net.core.somaxconn = 10000
-net.core.netdev_max_backlog = 65536
-net.ipv4.tcp_max_syn_backlog = 10000
-net.ipv4.tcp_max_tw_buckets = 2000000
-net.core.optmem_max = 25165824
-net.ipv4.tcp_mem = 65536 131072 262144
-net.ipv4.udp_mem = 65536 131072 262144
-net.ipv4.tcp_rmem = 8192 87380 16777216
-net.ipv4.udp_rmem_min = 16384
-net.ipv4.tcp_wmem = 8192 65536 16777216
-net.ipv4.udp_wmem_min = 16384
-net.ipv4.tcp_max_tw_buckets = 1440000
-net.ipv4.tcp_tw_recycle = 1
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_fin_timeout = 3
-net.ipv4.conf.all.send_redirects = 0
-net.ipv4.conf.all.accept_redirects = 0
-net.ipv4.conf.all.accept_source_route = 0
-fs.inotify.max_user_watches = 524288
-net.ipv4.ip_forward = 0
-net.ipv4.conf.default.rp_filter = 1
-net.ipv4.conf.default.accept_source_route = 0
-kernel.sysrq = 0
-kernel.core_uses_pid = 1
-net.ipv4.tcp_syncookies = 1
-
-kernel.msgmnb = 65536
-kernel.msgmax = 65536
-kernel.shmmax = 68719476736
-kernel.shmall = 4294967296
-net.ipv4.ip_local_port_range = 1025 65535
-net.ipv4.tcp_tw_recycle = 1
-net.ipv4.tcp_fin_timeout = 3
-fs.file-max = 2097152
-vm.swappiness = 10
-vm.dirty_ratio = 60
-vm.dirty_background_ratio = 2
-net.ipv4.tcp_synack_retries = 2
-net.ipv4.ip_local_port_range = 2000 65535
-net.ipv4.tcp_rfc1337 = 1
-net.ipv4.tcp_fin_timeout = 15
-net.ipv4.tcp_keepalive_time = 300
-net.ipv4.tcp_keepalive_probes = 5
-net.ipv4.tcp_keepalive_intvl = 15
-net.core.rmem_default = 31457280
-net.core.rmem_max = 12582912
-net.core.wmem_default = 31457280
-net.core.wmem_max = 12582912
-net.core.somaxconn = 4096
-net.core.netdev_max_backlog = 65536
-net.core.optmem_max = 25165824
-net.ipv4.tcp_mem = 65536 131072 262144
-net.ipv4.udp_mem = 65536 131072 262144
-net.ipv4.tcp_rmem = 8192 87380 16777216
-net.ipv4.udp_rmem_min = 16384
-net.ipv4.tcp_wmem = 8192 65536 16777216
-net.ipv4.udp_wmem_min = 16384
-net.ipv4.tcp_max_tw_buckets = 1440000
-net.ipv4.tcp_tw_recycle = 1
-net.ipv4.tcp_tw_reuse = 1
-net.ipv4.tcp_keepalive_time = 60
-net.ipv4.tcp_keepalive_intvl = 10
-net.ipv4.tcp_keepalive_probes = 6
-EOT
-sysctl -p
 array=(1 2 3 4 5 6 7 8 9 0 a b c d e f)
 gen64() {
 	ip64() {
