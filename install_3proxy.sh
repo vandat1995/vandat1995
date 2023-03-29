@@ -147,7 +147,7 @@ echo "Internal ip = ${IP4}. Exteranl sub for ip6 = ${IP6}"
 
 echo "How many proxy do you want to create? Example 500: "
 
-COUNT=5000
+COUNT=2000
 FIRST_PORT=10000
 LAST_PORT=$((FIRST_PORT + COUNT))
 
