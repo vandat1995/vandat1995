@@ -31,8 +31,9 @@ install_3proxy() {
 
 gen_3proxy() {
     cat <<EOF
-daemon
-maxconn 1000
+nserver 8.8.8.8
+nserver 1.1.1.1
+maxconn 5000
 nscache 65536
 timeouts 1 5 30 60 180 1800 15 60
 setgid 65535
@@ -119,10 +120,21 @@ $(awk -F "/" '{print "ifconfig eth0 inet6 add " $5 "/64"}' ${WORKDATA})
 EOF
 }
 echo "installing apps"
-yum -y install gcc net-tools bsdtar zip >/dev/null
+yum -y install gcc net-tools bsdtar zip supervisor >/dev/null
 
 install_3proxy
-
+sed -i "s/minfds=.*/minfds=20240/g" /etc/supervisord.conf 
+sed -i "s/minprocs=.*/minprocs=2001/g" /etc/supervisord.conf 
+#create supervisord config for 3 proxy
+cat <<EOF > /etc/supervisord.d/service.ini 
+[program:3proxy]
+command=/usr/local/etc/3proxy/bin/3proxy /usr/local/etc/3proxy/3proxy.cfg
+autostart=true
+startsecs=10
+autorestart=true
+exitcodes=1
+EOF
+systemctl enable supervisord
 echo "working folder = /home/proxy-installer"
 WORKDIR="/home/proxy-installer"
 WORKDATA="${WORKDIR}/data.txt"
@@ -134,9 +146,8 @@ IP6=$(curl -6 -s icanhazip.com | cut -f1-4 -d':')
 echo "Internal ip = ${IP4}. Exteranl sub for ip6 = ${IP6}"
 
 echo "How many proxy do you want to create? Example 500: "
-read COUNT
 
-
+COUNT = 5000
 FIRST_PORT=10000
 LAST_PORT=$(($FIRST_PORT + $COUNT))
 
@@ -152,13 +163,14 @@ cat >>/etc/rc.local <<EOF
 bash ${WORKDIR}/boot_iptables.sh
 bash ${WORKDIR}/boot_ifconfig.sh
 ulimit -n 188898
-service 3proxy start
+
 EOF
 
 bash /etc/rc.local
 
-fix_initd > /etc/init.d/3proxy
+#fix_initd > /etc/init.d/3proxy
 
 gen_proxy_file_for_user
 
 upload_proxy
+systemctl start supervisord
